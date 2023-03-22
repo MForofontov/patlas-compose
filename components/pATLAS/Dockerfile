@@ -1,26 +1,29 @@
-FROM ubuntu:16.04
-MAINTAINER Bruno Gonçalves <bfgoncalves@medicina.ulisboa.pt>
+FROM ubuntu:22.04
 
 # Create pATLAS folder
 WORKDIR /pATLAS/
 
+#Added to fix script getting stuck at configuration of tzdata
+ENV TZ=Europe/Lisbon
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+
 # Install general dependencies
 RUN apt-get update && apt-get install -y git curl sudo gcc g++ make \
-                                software-properties-common python-software-properties \
+                                software-properties-common \
                                 postgresql postgresql-contrib wget
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+RUN curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-RUN add-apt-repository ppa:jonathonf/python-3.6
 RUN add-apt-repository ppa:deadsnakes/ppa
-RUN apt-get update && apt-get install -y yarn python3.6 python3-pip build-essential tcl libssl-dev libffi-dev python3.6-dev
+RUN apt-get update && apt-get install -y yarn python3.9 python3-pip build-essential tcl libssl-dev libffi-dev python3.9-dev
 
 # Install pipenv
 RUN pip3 install pipenv
 
 # Clone flowcraft-webapp
 WORKDIR /pATLAS/
-RUN git clone https://github.com/tiagofilipe12/pATLAS
+RUN git clone https://github.com/MForofontov/pATLAS.git
 
 WORKDIR /pATLAS/pATLAS/patlas/db_manager/db_app/static/
 RUN yarn install
@@ -31,12 +34,15 @@ WORKDIR /pATLAS/pATLAS/patlas/db_manager
 
 # Get and extract pATLAS db
 # Release 1.5.2
-RUN wget https://github.com/tiagofilipe12/pATLAS/releases/download/1.6.1/plasmid_db_dev_final.tar.gz
+RUN wget https://github.com/MForofontov/test_files/raw/main/plasmid_db_dev_final.tar.gz
 RUN tar xf plasmid_db_dev_final.tar.gz
 RUN rm plasmid_db_dev_final.tar.gz
 
 # Install Backend dependencies
 WORKDIR /pATLAS/pATLAS/
+#fix error
+RUN apt install libpq-dev
+#---------
 RUN pip install -r requirements.txt
 
 # Set final WORKDIR

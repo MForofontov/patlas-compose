@@ -1,9 +1,9 @@
-version: '3'
+version: '3.7'
 services:
 
   # DB for pATLAS.
   db_patlas:
-    image: postgres:10
+    image: postgres:12
     restart: always
     environment:
       POSTGRES_USER: "patlas"

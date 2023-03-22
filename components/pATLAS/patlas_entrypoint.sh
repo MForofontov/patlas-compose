@@ -3,7 +3,7 @@
 if [ "$1" = "init_all" ]
 then
     # Wait for postgres
-    sleep 2
+    sleep 60
 
     # Add database
     export PGPASSWORD=patlas
